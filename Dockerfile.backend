@@ -1,0 +1,32 @@
+FROM python:3.12
+LABEL authors="niki"
+
+
+ENV PYTHONUNBUFFERED=1
+
+ARG WORKDIR=/wd
+ARG USER=user
+
+WORKDIR ${WORKDIR}
+
+RUN useradd --system ${USER} && \
+    chown --recursive ${USER} ${WORKDIR}
+
+
+RUN apt update && apt upgrade --yes
+
+COPY --chown=${USER} requirements.txt requirements.txt
+
+RUN pip install --upgrade pip && \
+    pip install --requirement requirements.txt
+
+COPY --chown=${USER} ./alembic alembic
+COPY --chown=${USER} alembic.ini alembic.ini
+COPY --chown=${USER} ./app app
+#RUN ls
+#RUN alembic upgrade head
+#USER ${USER}
+#ENTRYPOINT ["alembic", "upgrade", "head"]
+#ENTRYPOINT ["uvicorn", "app.api.main:app"]
+#CMD ["--host", "0.0.0.0", "--port", "8000"]
+#HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 CMD curl --fail http://localhost:5000/health || exit 1
